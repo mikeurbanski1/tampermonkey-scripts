@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AWS Security Group Links
 // @version      0.1
-// @description  Provide some links for better security group navigation in AWS.
+// @description  Provide some links for better security group navigation in AWS. Also adds a link to copy the SG ID to the clipboard and open the VPC.
 // @author       Mike Urbanski
 // @match        *console.aws.amazon.com/vpc/home*
 // @match        *console.aws.amazon.com/ec2/v2/home*
@@ -15,6 +15,10 @@
 var vpcClassNames = ['GGDXUD2BI1'];
 var ec2ClassNames = ['GGVUFA2COMB', 'GLIWNNXDKNB'];
 
+// The class names for identifying the VPC ID container in the info subpanel. Again, EC2 is different per region.
+var vpcVpcIdClassNames = ['GGDXUD2BJI'];
+var ec2VpcIdClassNames = ['GLIWNNXDEK', 'GGVUFA2CGK'];
+
 (function() {
     'use strict';
 
@@ -24,20 +28,23 @@ var ec2ClassNames = ['GGVUFA2COMB', 'GLIWNNXDKNB'];
         vpc: {
             getId: getIdVpc,
             getLinks: getLinksVpc,
-            addLinks: addLinksVpc
+            classNames: vpcClassNames,
+            vpcIdClassNames: vpcVpcIdClassNames
         },
         ec2: {
             getId: getIdEc2,
             getLinks: getLinksEc2,
-            addLinks: addLinksEc2
+            classNames: ec2ClassNames,
+            vpcIdClassNames: ec2VpcIdClassNames
         }
     }
 
-    var handler = /vpc\/home/.test(window.location.href) ? handlers.vpc : handlers.ec2;
+    var isInVpc = /vpc\/home/.test(window.location.href);
+    var handler = isInVpc ? handlers.vpc : handlers.ec2;
 
     // The EC2 or VPC page loads once, and then does background data fetching after that. So, we essentially have to keep polling the URL:
     // first to see if we are in the right sub-page, and repeatedly to see if it changes.
-    (function run(handler, origSgId) {
+    (function run(handler, origSgId, isInVpc) {
 
         if (! /#securitygroups/.test(window.location.href.toLowerCase())) {
 //             console.log('Not a security group page');
@@ -55,13 +62,14 @@ var ec2ClassNames = ['GGVUFA2COMB', 'GLIWNNXDKNB'];
             else {
                 console.log('New SG selected: ' + sgId);
                 var links = handler.getLinks(sgId).concat(getCommonLinks(sgId));
-                handler.addLinks(links);
+                addLinks(sgId, links, handler.classNames);
+                addVpcLink(handler.vpcIdClassNames, isInVpc);
             }
         }
 
-        setTimeout(() => run(handler, sgId), 1000);
+        setTimeout(() => run(handler, sgId, isInVpc), 1000);
 
-    })(handler, null);
+    })(handler, null, isInVpc);
 })();
 
 function getParentContainer(classNames) {
@@ -135,27 +143,77 @@ function getCommonLinks(sgId) {
            ];
 }
 
-function addLinksVpc(links) {
-    var infoElement = getParentContainer(vpcClassNames)
+function addLinks(sgId, links, classNames) {
+    var infoElement = getParentContainer(classNames)
+
+    infoElement.appendChild(createCopyLink(sgId));
+
     links.forEach(link => {
         var s = document.createElement('span');
-        s.innerHTML = getTextForLink(link);
+        s.innerHTML = getHtmlForLink(link);
         infoElement.appendChild(s);
     });
 }
 
-function addLinksEc2(links) {
-    var infoElement = getParentContainer(ec2ClassNames)
+function createCopyLink(textToCopy) {
+    var span = document.createElement('span');
+    var link = document.createElement('a');
+    link.textContent = '⧉ → 📋';
+    link.onclick = () => function(text) {
+        copy(text);
+    }(textToCopy);
 
-    links.forEach(link => {
-        var s = document.createElement('span');
-        s.innerHTML = getTextForLink(link);
-        infoElement.appendChild(s);
-    });
+    span.appendChild(link);
+    return span;
 }
 
-function getTextForLink(link) {
-    return ` | <a href="${link.url}">${link.text}</a>`
+function addVpcLink(vpcIdClassNames, isInVpc) {
+
+    var fields;
+
+    for (var cls of vpcIdClassNames) {
+        var els = document.getElementsByClassName(cls);
+        if (els && els.length > 0) {
+            fields = els;
+            break;
+        }
+    }
+
+    if (!fields) {
+        console.error('Could not find fields to update for VPC');
+        return;
+    }
+
+    var element;
+    var vpcId;
+
+    for (var field of fields) {
+        var firstChildText = field.firstChild.textContent;
+        if (firstChildText.startsWith('vpc-')) {
+            element = field.firstChild;
+            vpcId = firstChildText;
+            break;
+        }
+    }
+
+    element.innerHTML = `<a href="${getUrlToVpc(vpcId, isInVpc)}">${vpcId}</a>`;
 }
 
+function getHtmlForLink(link) {
+    return ` | <a href="${link.url}">${link.text}</a>`;
+}
+
+function getUrlToVpc(vpcId, isInVpc) {
+    var postfix = `#vpcs:search=${vpcId};sort=VpcId`;
+    return isInVpc ? postfix : 'https://console.aws.amazon.com/vpc/home' + postfix; // Stay in VPC SPA if possible
+}
+
+function copy(text) {
+    // This should work for a modern browser. The ugly alternative is to create a hidden element with text, select its text, and issue a "copy" command.
+    navigator.clipboard.writeText(text).then(function() {
+
+  }, function(err) {
+    console.error('Could not copy text: ', err);
+  });
+}
 
