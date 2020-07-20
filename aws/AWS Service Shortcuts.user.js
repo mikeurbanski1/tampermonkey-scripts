@@ -52,6 +52,37 @@ To do:
     'use strict';
     console.log('script is running');
 
+    // Map the service name (from the ID attribute) to the title of the dropdown
+    var serviceToTitleMapping = {
+        cfo: 'CloudFormation',
+        states: 'Step Functions',
+        lam: 'Lambda'
+    };
+
+    // Map the service name to the button label (use this to shortern long labels)
+    var serviceToShortcutMapping = {
+        cfo: 'CFO',
+        states: 'Step',
+        lam: 'λ',
+        ecs: 'ECS'
+    };
+
+    shrinkThings(serviceToShortcutMapping);
+
+    // Map the value in the user / role dropdown to a display name
+    var accountDisplayNameMapping = {
+        '8902-3426-4427' : 'Prod',
+        'dev-bridgecrew' : 'Dev',
+        'acme-bridgecrew' : 'Acme',
+        'acme3-bridgecrew' : 'Acme3',
+        'demo-bridgecrew' : 'Demo'
+    }
+
+    // List dangerous account names to display in red (if mapped to a display name above, use the display name here)
+    var dangerousAccounts = ['Prod']
+
+    insertAccountLabel(accountDisplayNameMapping, dangerousAccounts);
+
     setupCss();
 
     // This essentially declares "supported" services, but the base container with the region selection will be
@@ -63,7 +94,7 @@ To do:
         s3: {init: s3Init, links: s3Links},
         kms: {init: kmsInit, links: kmsLinks},
         r53: {init: r53Init, links: r53Links}
-    }
+    };
 
     var navBar = document.getElementById('nav-shortcutBar');
     navBar.childNodes.forEach(el => {
@@ -459,4 +490,79 @@ font-size: 12pt;
 }`);
 }
 
+function shrinkThings(serviceToShortcutMapping) {
 
+    var el = document.getElementById('nav-servicesMenu')
+    el.style.padding = '12px 0 12px';
+    var el2 = el.getElementsByClassName('nav-elt-label')[0];
+    el2.style.padding = '0 7px 0 0';
+    el2.style.fontSize = '12px';
+    el2 = el.getElementsByClassName('nav-menu-arrow')[0];
+    el2.style.right = '-1px';
+
+    el = document.getElementById('nav-resourceGroupsMenu')
+    el.style.padding = '12px 0 12px';
+    el2 = el.getElementsByClassName('nav-elt-label')[0];
+    el2.style.padding = '0 7px 0 0';
+    el2.style.fontSize = '12px';
+    el2.innerHTML = 'RG'
+    el2 = el.getElementsByClassName('nav-menu-arrow')[0];
+    el2.style.right = '-1px';
+
+    el = document.getElementById('nav-logo');
+    el.style.marginLeft = '0';
+    el.style.marginRight = '0';
+    document.getElementById('nav-menu-right').style.padding = '0';
+    document.getElementById('nav-phd').style.padding = '12px 0 10px';
+    document.getElementById('nav-usernameMenu').style.padding = '13px 0 9px';
+    document.getElementById('nav-regionMenu').style.padding = '13px 0 9px';
+
+    el = document.getElementById('nav-helpMenu')
+    el.style.padding = '13px 0 9px';
+    el2 = el.getElementsByClassName('nav-elt-label')[0];
+    el2.innerHTML = ''
+
+    document.getElementById('nav-shortcutMenu').style.padding = '13px 0 9px';
+
+    el = document.getElementById('nav-shortcutBar');
+    el.style.padding = '5px 0';
+    for (el2 of el.children) {
+        var service = el2.getAttribute("data-service-id");
+        el2.style.marginLeft = '0';
+
+        var el3 = el2.getElementsByTagName('a')[0];
+        el3.style.margin = '0';
+        el3.style.padding = '7px 0 5px';
+
+        el3 = el2.getElementsByClassName('service-label')[0];
+        el3.style.fontSize = '12px';
+
+        if (serviceToShortcutMapping[service]) {
+            el3.innerHTML = serviceToShortcutMapping[service];
+        }
+    }
+}
+
+function insertAccountLabel(accountDisplayNameMapping, dangerousAccounts) {
+    var navRight = document.getElementById('nav-menu-right');
+
+    var notification = document.getElementById('nav-phd');
+
+    var span = document.createElement('span');
+    span.className = 'nav-menu nav-elt-label nav-elt';
+    span.style.color = '#eee';
+
+    var accountName = document.getElementById('awsc-login-display-name-account').innerHTML
+
+    if (accountDisplayNameMapping[accountName]) {
+        accountName = accountDisplayNameMapping[accountName];
+    }
+
+    span.style.color = dangerousAccounts.indexOf(accountName) >= 0 ? '#f00' : '#eee';
+
+    span.innerHTML = 'Account: ' + accountName;
+    navRight.insertBefore(span, notification);
+
+    navRight.removeChild(notification);
+    navRight.insertBefore(notification, document.getElementById('nav-regionMenu'));
+}
