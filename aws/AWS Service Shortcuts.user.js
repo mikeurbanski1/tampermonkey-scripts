@@ -9,7 +9,8 @@
 
 /*
 Current capabilities:
-- Greatly condense the nav bar to make all these buttons fit better
+- Greatly condense the nav bar to make all these buttons fit better.
+- Display the name of the account next to the user / role dropdown to see at a glance which account you're on. Color-code dangerous accounts.
 - Display a dropdown when hovering over a pinned shortcut in the navbar. This shortcut has:
     - A link to that service homepage, the same as the pinned shortcut button, except:
     - A region selector that modifies this link to go to the selected region, allowing one to switch services and regions in one page load.
@@ -54,7 +55,9 @@ To do:
     var serviceToTitleMapping = {
         cfo: 'CloudFormation',
         states: 'Step Functions',
-        lam: 'Lambda'
+        lam: 'Lambda',
+        ddb: 'DynamoDB',
+        c: 'Cognito'
     };
 
     // Map the service name to the button label (use this to shortern long labels)
@@ -62,7 +65,9 @@ To do:
         cfo: 'CFO',
         states: 'Step',
         lam: 'λ',
-        ecs: 'ECS'
+        ecs: 'ECS',
+        ddb: 'DDB',
+        c: 'Cog'
     };
 
     shrinkThings(serviceToShortcutMapping);
@@ -84,26 +89,30 @@ To do:
 
     // This essentially declares "supported" services, but the base container with the region selection will be
     // available for anything, even if not listed here.
+    // the "init" functionality is not used, but reserved for future use, so any callable function will do for these. So, blank functions are just reused, despite the naming.
     var funcMapping = {
         iam: {init: iamInit, links: iamLinks},
         ec2: {init: ec2Init, links: ec2Links},
         vpc: {init: vpcInit, links: vpcLinks},
         s3: {init: s3Init, links: s3Links},
         kms: {init: kmsInit, links: kmsLinks},
-        r53: {init: r53Init, links: r53Links}
+        r53: {init: r53Init, links: r53Links},
+        ecs: {init: r53Init, links: ecsLinks},
+        ddb: {init: r53Init, links: ddbLinks},
+        c: {init: r53Init, links: cognitoLinks}
     };
 
     var navBar = document.getElementById('nav-shortcutBar');
     navBar.childNodes.forEach(el => {
         var service = el.getAttribute("data-service-id");
-        var base = baseInit(el, service, funcMapping[service]);
+        var base = baseInit(el, service, funcMapping[service], serviceToTitleMapping[service]);
     });
 })();
 
 /*
 Initializes a dropdown and calls the service-specific initialization function, if present.
 */
-function baseInit(serviceElement, serviceName, serviceFunctions) {
+function baseInit(serviceElement, serviceName, serviceFunctions, serviceTitle) {
     console.log('in ' + serviceName + ' init');
 
     var linkElement = serviceElement.firstChild;
@@ -114,7 +123,7 @@ function baseInit(serviceElement, serviceName, serviceFunctions) {
     var ul = document.createElement('ul');
     ul.className = 'link-list';
 
-    var dropdown = createBaseDropdown(serviceElement, serviceName, url, urlWithoutRegion, ul, serviceFunctions);
+    var dropdown = createBaseDropdown(serviceElement, serviceName, url, urlWithoutRegion, ul, serviceFunctions, serviceTitle);
 
     dropdown.appendChild(ul);
 
@@ -194,6 +203,8 @@ If the URL without region contains a #, then the region param is appended prior 
 */
 function makeRegionUrl(urlWithoutRegion, region) {
 
+    console.log(urlWithoutRegion);
+
     var hashIndex = urlWithoutRegion.indexOf('#');
     if (hashIndex === -1) {
         hashIndex = urlWithoutRegion.length;
@@ -202,7 +213,8 @@ function makeRegionUrl(urlWithoutRegion, region) {
     var urlBeforeHash = urlWithoutRegion.substring(0, hashIndex);
     var urlAfterHash = urlWithoutRegion.substring(hashIndex);
 
-    return urlBeforeHash + (urlBeforeHash.indexOf('?') == -1 ? '?' : '&') + 'region=' + region + urlAfterHash;
+    var appendedRegion = urlBeforeHash + (urlBeforeHash.indexOf('?') == -1 ? '?' : '&') + 'region=' + region + urlAfterHash;
+    return appendedRegion.replace('https://console', 'https://' + region + '.console');
 }
 
 /*
@@ -311,7 +323,10 @@ function buildRegionSelectors(serviceName, linkToUpdate, originalUrl, urlWithout
 
     var radioComment = document.createElement('span');
     radioComment.className = 'radio-comment';
-    radioComment.innerText = '(Click a radio button again to deselect it and reset the links.)';
+    radioComment.innerHTML = '(Click a radio button again to deselect it and reset the links.)';
+    if (serviceName === 'c') {
+        radioComment.innerHTML = "For Cognito, you must select a region, or these links won't work.<br>" + radioComment.innerHTML;
+    }
 
     radioDiv.appendChild(radioComment);
 
@@ -327,7 +342,7 @@ originalUrl: the URL of the link on the button
 urlWithoutRegion: the URL with all region elements removed
 linkList: the list element (e.g., 'ul') that will contain the service-specific links
 */
-function createBaseDropdown(serviceElement, serviceName, originalUrl, urlWithoutRegion, linkList, serviceFunctions) {
+function createBaseDropdown(serviceElement, serviceName, originalUrl, urlWithoutRegion, linkList, serviceFunctions, serviceTitle) {
     var dropdownDiv = document.createElement('div');
     dropdownDiv.id = serviceName + '-dropdown-xyz123'; // unlikely, but this makes sure that the ID doesn't conflict.
 
@@ -372,7 +387,7 @@ function createBaseDropdown(serviceElement, serviceName, originalUrl, urlWithout
     var link = document.createElement('a');
     link.href = originalUrl;
     link.id = 'title-link-' + serviceName
-    link.innerText = serviceName.toUpperCase();
+    link.innerText = serviceTitle ? serviceTitle : serviceName.toUpperCase();
 
     title.appendChild(link);
 
@@ -403,10 +418,12 @@ function iamLinks(linkList, region) {
 
 function ec2Links(linkList, region) {
     linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2/v2/home#Instances:', 'Instances', region));
-    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2/v2/home#LoadBalancers:', 'Load Balancers', region));
     linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2/v2/home#NIC:', 'Network Interfaces', region));
     linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2/v2/home#SecurityGroups:', 'Security Groups', region));
-    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2/autoscaling/home#AutoScalingGroups:', 'Auto Scaling Groups', region));
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2/v2/home#LoadBalancers:', 'Load Balancers', region));
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2/v2/home#TargetGroups:', 'Target Groups', region));
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2autoscaling/home#AutoScalingGroups:', 'Auto Scaling Groups', region));
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ec2autoscaling/home#/lc', 'Launch Configs', region));
 }
 
 function vpcLinks(linkList, region) {
@@ -414,6 +431,20 @@ function vpcLinks(linkList, region) {
     linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/vpc/home#subnets:', 'Subnets', region));
     linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/vpc/home#acls:', 'Network ACLs', region));
     linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/vpc/home#SecurityGroups:', 'Security Groups', region));
+}
+
+function ecsLinks(linkList, region) {
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ecs/home#/clusters', 'Clusters', region));
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/ecs/home#/taskDefinitions', 'Task Definitions', region));
+}
+
+function ddbLinks(linkList, region) {
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/dynamodb/home#tables:', 'Tables', region));
+}
+
+function cognitoLinks(linkList, region) {
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/cognito/users/', 'User Pools', region));
+    linkList.appendChild(createLinkListItem('https://console.aws.amazon.com/cognito/federated', 'Identity Pools', region));
 }
 
 function s3Links(linkList, region) {
@@ -465,6 +496,7 @@ padding-bottom: 5px;
     GM_addStyle(`.region-select-list {
 list-style: none;
 padding-inline-start: 0px;
+margin: 0 0 .75em 0;
 }`);
 
     GM_addStyle(`.region-select-list-item {
@@ -474,12 +506,14 @@ padding-top: 2px;
 
     GM_addStyle(`.region-select-radio-label {
 padding-left: 5px;
+display: inline;
 }`);
 
     GM_addStyle(`.link-list {
 list-style: none;
 padding-inline-start: 0px;
 padding-left: 5px;
+margin: 0 0 .75em 0;
 }`);
 
     GM_addStyle(`.link-list-item {
@@ -523,6 +557,7 @@ function shrinkThings(serviceToShortcutMapping) {
 
     el = document.getElementById('nav-shortcutBar');
     el.style.padding = '5px 0';
+    console.log(serviceToShortcutMapping);
     for (el2 of el.children) {
         var service = el2.getAttribute("data-service-id");
         el2.style.marginLeft = '0';
