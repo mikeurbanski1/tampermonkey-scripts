@@ -9,6 +9,7 @@
 
 /*
 Current capabilities:
+- Greatly condense the nav bar to make all these buttons fit better
 - Display a dropdown when hovering over a pinned shortcut in the navbar. This shortcut has:
     - A link to that service homepage, the same as the pinned shortcut button, except:
     - A region selector that modifies this link to go to the selected region, allowing one to switch services and regions in one page load.
@@ -31,9 +32,6 @@ How to add a service:
 Known issues:
 - The styling looks a little different depending on which AWS service page you are on. I think this is because each has its own CSS tweaks.
 - Services with subdomain prefixes before 'console.aws.com' (e.g., Pages) will not work with the current region stripping logic.
-- There are some issues with regions - it's not clear what determines which region you will go to.
-    - There is a region subdomain (us-west-2.console.aws...), there is a region param (region=us-west-2), and maybe a cookie or stored value?
-    - I THINK it will always work intuitively if you just don't specify any region in the URL subdomain or param, but I haven't tested all cases.
 */
 
 /*
@@ -71,7 +69,6 @@ To do:
 
     // Map the value in the user / role dropdown to a display name
     var accountDisplayNameMapping = {
-        '8902-3426-4427' : 'Prod',
         'dev-bridgecrew' : 'Dev',
         'acme-bridgecrew' : 'Acme',
         'acme3-bridgecrew' : 'Acme3',
