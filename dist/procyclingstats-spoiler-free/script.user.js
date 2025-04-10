@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name         ProCyclingStats spoiler free
-// @namespace    http://tampermonkey.net/
+// @namespace    mikeurbanski1
 // @version      2025-04-05
-// @description  try to take over the world!
-// @author       You
+// @description  Hide spoilers across procyclingstats.com
+// @author       mikeurbanski1
 // @match        https://www.procyclingstats.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=procyclingstats.com
-// @require      file://\\wsl.localhost\Ubuntu\home\mike\projects\tampermonkey-scripts\dist\procyclingstats-spoiler-free.js
+// @require      https://raw.githubusercontent.com/mikeurbanski1/tampermonkey-scripts/refs/heads/main/dist/procyclingstats-spoiler-free/script.js
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @run-at       document-start
 // ==/UserScript==
