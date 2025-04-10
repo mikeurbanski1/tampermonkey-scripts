@@ -1,0 +1,16 @@
+{
+    "name": "procyclingstats-spoiler-free",
+    "version": "0.0.1",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "rm -rf build && tsc",
+        "bundle": "esbuild build/main.js --bundle --outfile=../../dist/procyclingstats-spoiler-free/script.js --platform=browser",
+        "package": "pnpm build && pnpm bundle && cp userscript-contents.txt ../../dist/procyclingstats-spoiler-free/script.user.js",
+        "watch": "watch 'pnpm run build' src",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
