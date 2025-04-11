@@ -45,6 +45,10 @@ cd scripts/procyclingstats-spoiler-free # choose your script
 pnpm package # creates the build output (from tsc) and recreates the dist directory contents
 ```
 
+Instead of the final `cd` and `pnpm-package` commands, you could also just run `pnpm package-<script name>` from the repo root.
+
+The `package` command will also produce a `checksum.txt` in the script's `dist` folder. This is a checksum of the bundled `script.js`. You can compare this output with the value stored in the repo to be sure that they are the same. (If they are not, please tell me.)
+
 ### Using the local script in Tampermonkey
 
 Tampermonkey can load scripts from your local hard drive. First, you need to give the extension permissions to do so.
@@ -67,3 +71,4 @@ When you run the script from your hard drive, you can also automatically repacka
 
 - If you want to change the Tampermonkey script headers for any reason, edit the `userscript-contents.txt` file and run `pnpm package` (or just update this directly, since this script does not actually have any automation associated with it other than copying it to the `dist` directory).
 
+### Verifying a script

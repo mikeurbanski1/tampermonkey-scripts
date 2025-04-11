@@ -6,6 +6,10 @@
     "keywords": [],
     "author": "",
     "license": "ISC",
+    "scripts": {
+        "package": "pnpm '/^package-.+/'",
+        "package-procyclingstats-spoiler-free": "cd scripts/procyclingstats-spoiler-free && pnpm package"
+    },
     "dependencies": {
         "dayjs": "^1.11.13",
         "jquery": "^3.7.1"

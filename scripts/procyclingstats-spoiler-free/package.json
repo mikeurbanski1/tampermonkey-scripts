@@ -6,8 +6,9 @@
     "scripts": {
         "build": "rm -rf build && tsc",
         "bundle": "esbuild build/main.js --bundle --outfile=../../dist/procyclingstats-spoiler-free/script.js --platform=browser",
-        "package": "pnpm build && pnpm bundle && cp userscript-contents.txt ../../dist/procyclingstats-spoiler-free/script.user.js",
-        "watch": "watch 'pnpm package' src"
+        "package": "pnpm build && pnpm bundle && cp userscript-contents.txt ../../dist/procyclingstats-spoiler-free/script.user.js && pnpm checksum",
+        "watch": "watch 'pnpm package' src",
+        "checksum": "sha512sum ../../dist/procyclingstats-spoiler-free/script.js | cut -d' ' -f1 > ../../dist/procyclingstats-spoiler-free/checksum.txt"
     },
     "keywords": [],
     "author": "",
