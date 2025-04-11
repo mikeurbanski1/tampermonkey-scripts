@@ -23,7 +23,7 @@ These are built using typescript and bundled into a single file using esbuild. I
 
 ![Click the tampermonkey extension icon and select "create user script"](docs/images/tampermonkey-new-script.png)
 
-3. Copy the contents of `dist/<script>/script.user.js` into the editor. This header-only script will reference the latest version from the `dist` directory. See below to learn how to pin a version.
+3. Copy the contents of `dist/<script>/script.user.js` into the editor. This header-only script will reference the latest version from the `dist` directory. See below to learn how to pin a version *\<coming soon\>*
 
 ## Local setup
 
