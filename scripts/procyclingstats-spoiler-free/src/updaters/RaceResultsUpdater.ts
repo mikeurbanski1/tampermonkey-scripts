@@ -15,7 +15,7 @@ export class RaceResultsUpdater extends AbstractUpdater {
     }
 
     public shouldRun(settings: Settings): boolean {
-        return settings.spoilerMode === SpoilerMode.Hide && Object.values(pathRegexes).some((regex) => regex.test(window.location.pathname));
+        return settings.spoilerMode === SpoilerMode.Hide && !window.location.pathname.endsWith('/startlist') && Object.values(pathRegexes).some((regex) => regex.test(window.location.pathname));
     }
 
     public run(settings: Settings): void {
@@ -42,9 +42,7 @@ export class RaceResultsUpdater extends AbstractUpdater {
     private raceTopLevel(_: Settings): void {
         $('h3').each((_, h3) => {
             const text = $(h3).text();
-            console.log('text', text);
             if (text === 'Last winners' || text === 'Most wins') {
-                console.log('removing spoilers');
                 $('ul', $(h3).next())
                     .find('li')
                     .each((_, li) => {
@@ -67,15 +65,11 @@ export class RaceResultsUpdater extends AbstractUpdater {
 
         $('table.results').text('Spoilers removed');
 
-        console.log($('ul.infolist'));
-
         // replace the sensitive race information only
         $('ul.infolist')
             .children('li')
             .each((_, li) => {
-                console.log('li', li);
                 const firstChild = $(li).children(':first');
-                console.log('firstChild', firstChild);
                 const text = firstChild.text().toLowerCase();
                 if (text.includes('won') || text.includes('winner')) {
                     $(firstChild).next().text('Spoilers removed');

@@ -6945,7 +6945,7 @@
           super({ name: "RaceResultsUpdater", order: 11 });
         }
         shouldRun(settings) {
-          return settings.spoilerMode === models_1.SpoilerMode.Hide && Object.values(pathRegexes).some((regex) => regex.test(window.location.pathname));
+          return settings.spoilerMode === models_1.SpoilerMode.Hide && !window.location.pathname.endsWith("/startlist") && Object.values(pathRegexes).some((regex) => regex.test(window.location.pathname));
         }
         run(settings) {
           Object.entries(pathRegexes).forEach(([key, regex]) => {
@@ -6970,9 +6970,7 @@
         raceTopLevel(_) {
           (0, jquery_1.default)("h3").each((_2, h3) => {
             const text = (0, jquery_1.default)(h3).text();
-            console.log("text", text);
             if (text === "Last winners" || text === "Most wins") {
-              console.log("removing spoilers");
               (0, jquery_1.default)("ul", (0, jquery_1.default)(h3).next()).find("li").each((_3, li) => {
                 const children = (0, jquery_1.default)(li).children();
                 children.eq(1).text("Spoiler removed");
@@ -6987,11 +6985,8 @@
         raceResult(_, tag = "table") {
           const isOneDayRace = window.location.pathname.endsWith("result");
           (0, jquery_1.default)("table.results").text("Spoilers removed");
-          console.log((0, jquery_1.default)("ul.infolist"));
           (0, jquery_1.default)("ul.infolist").children("li").each((_2, li) => {
-            console.log("li", li);
             const firstChild = (0, jquery_1.default)(li).children(":first");
-            console.log("firstChild", firstChild);
             const text = firstChild.text().toLowerCase();
             if (text.includes("won") || text.includes("winner")) {
               (0, jquery_1.default)(firstChild).next().text("Spoilers removed");
@@ -7075,13 +7070,10 @@
             }).length > 0;
           });
           ridersWithText.each((_, rider) => {
-            const link = (0, jquery_1.default)(rider).find("a");
-            (0, jquery_1.default)(rider).contents().each((_2, node) => {
+            (0, jquery_1.default)(rider).removeClass("dropout").contents().each((_2, node) => {
               if (node.nodeType === Node.TEXT_NODE) {
                 const nodeText = (0, jquery_1.default)(node).text();
                 if (nodeText.includes("DNF") || nodeText.includes("DNS")) {
-                  this.riderToRemovedTextMap.set((0, jquery_1.default)(link).text(), nodeText);
-                  console.debug("updated removed startlist map with ", (0, jquery_1.default)(link).text(), nodeText);
                   node.data = " ";
                 }
               }

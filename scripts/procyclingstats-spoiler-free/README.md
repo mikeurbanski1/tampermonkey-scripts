@@ -2,9 +2,11 @@
 
 This script will remove many, or maybe most, or perhaps eventually all spoilers on procyclingstats.com. The goal is to make it easy to look up relevant information, as as other race results, team result, rider historical stats, etc. while watching races on a delay. You know, the thing that spoilers ruin.
 
+**Note: spoilers will flash briefly when pages load! Avert your eyes.**
+
 ![The homepage of procyclingstats.com with many spoilers removed](../../docs/images/procyclingstats-spoiler-free/homepage.png)
 
-Currently I am taking a very crude hammer to the pages, attempting to remove as much as possible as quickly as possible.
+Currently I am taking a very crude hammer to the pages, attempting to remove as much as possible as quickly as possible. This is not usually hard, just repetitive.
 
 ## Spoiler-free pages
 
@@ -37,5 +39,5 @@ When you click any of these buttons, the page will refresh and the setting will 
 
 ## Planned features
 
-- A spoiler date, where only spoilers after that date will be hidden (as much as is possible using date context that exists on the page)
-- Line-item spoilers that you can selectively show or hide, without affecting the whole page (e.g., on a big table of race results from many races, allow you to see the winner of one race without seeing the winner of another)
+- A spoiler date, where only spoilers after that date will be hidden (as much as is possible if date context exists on the page / element)
+- Line-item spoilers that you can selectively show or hide, without affecting the whole page (e.g., on a big table of race results from this year's races, show the winner of one race without seeing the winner of others)

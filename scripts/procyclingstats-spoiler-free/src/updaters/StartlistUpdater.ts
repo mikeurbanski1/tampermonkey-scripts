@@ -21,6 +21,9 @@ export class StartlistUpdater extends AbstractUpdater {
     private removeDnf(): void {
         const riders = $('.ridersCont ul li');
 
+        // some pages use a 'dropout' class on the li that contains the rider number, flag, and name
+        // but this is not always there, so searching for extra text is more reliable
+
         const ridersWithText = $(riders).filter((_, rider) => {
             return (
                 $(rider)
@@ -32,15 +35,13 @@ export class StartlistUpdater extends AbstractUpdater {
         });
 
         ridersWithText.each((_, rider) => {
-            const link = $(rider).find('a');
             $(rider)
+                .removeClass('dropout')
                 .contents()
                 .each((_, node) => {
                     if (node.nodeType === Node.TEXT_NODE) {
                         const nodeText = $(node).text();
                         if (nodeText.includes('DNF') || nodeText.includes('DNS')) {
-                            this.riderToRemovedTextMap.set($(link).text(), nodeText);
-                            console.debug('updated removed startlist map with ', $(link).text(), nodeText);
                             (node as Text).data = ' ';
                         }
                     }
