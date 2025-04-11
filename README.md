@@ -61,7 +61,7 @@ To run your local script:
 
 ### Live updates
 
-When you run the script from your hard drive, you can also automatically repackage it so that the updated script loads the next time you refresh your browser. To do so, use the `pnpm watch` command.
+When you run the script from your hard drive, you can also automatically repackage it whenhever you update the `src` files, so that the updated script loads the next time you refresh your browser. To do so, use the `pnpm watch` command.
 
 ### Notes
 
