@@ -1,4 +1,4 @@
-# Mike Urbanski's Tampermonkey scripts
+# Mike Tampermonkey scripts
 
 Welcome to my repo of (eventually) various scripts for the wonderful extension [Tampermonkey](https://www.tampermonkey.net/).
 
