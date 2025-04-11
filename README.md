@@ -15,11 +15,51 @@ These are built using typescript and bundled into a single file using esbuild. I
 ## Installing a script
 
 1. Browse to the `dist/<script>` directory for the script you want. 
-2. In your Tampermonkey extension dashboard, add a new script.
+2. In your Tampermonkey extension, add a new script.
 
-![Click the tampermonkey extension and select "create user script"](docs/images/tampermonkey-new-script.png)
+![Click the tampermonkey extension icon and select "create user script"](docs/images/tampermonkey-new-script.png)
 
-3. Copy the contents of `dist/<script>/script.user.js` into the editor. This script will reference the latest version from the `dist` directory. See below to pin a version.
+3. Copy the contents of `dist/<script>/script.user.js` into the editor. This header-only script will reference the latest version from the `dist` directory. See below to learn how to pin a version.
 
 ## Local setup
+
+You are welcome to edit a script or build / verify it yourself. The repo already contains the distributable user scripts. However, you can build and overwrite them locally.
+
+### Pre-reqs
+
+- node v23.1.0 (others probably work) - I use `nvm` for these examples.
+- pnpm
+
+### Commands
+
+```bash
+git clone https://github.com/mikeurbanski1/tampermonkey-scripts.git
+cd tampermonkey-scripts
+nvm use # if you use nvm, otherwise skip
+pnpm i
+cd scripts/procyclingstats-spoiler-free # choose your script
+pnpm package # creates the build output (from tsc) and recreates the dist directory contents
+```
+
+### Using the local script in Tampermonkey
+
+Tampermonkey can load scripts from your local hard drive. First, you need to give the extension permissions to do so.
+
+1. In Chrome, navigate to *Extensions* -> *Manage Extensions*
+2. Find Tampermonkey, and click *Details*
+3. Enable *Allow access to file URLs*
+
+To run your local script:
+
+1. Open the script you wish to run locally in the Tampermonkey editor
+2. Change the `@require` line to: `file://<path to your local dist script>`
+   1. Note: for WSL, the path will look something like this: `file://\\wsl.localhost\Ubuntu\<absolute path within WSL env>`
+
+### Live updates
+
+When you run the script from your hard drive, you can also automatically repackage it so that the updated script loads the next time you refresh your browser. To do so, use the `pnpm watch` command.
+
+### Notes
+
+- If you want to change the Tampermonkey script headers for any reason, edit the `userscript-contents.txt` file and run `pnpm package` (or just update this directly, since this script does not actually have any automation associated with it other than copying it to the `dist` directory).
 
