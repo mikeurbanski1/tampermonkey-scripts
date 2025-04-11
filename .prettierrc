@@ -27,5 +27,16 @@
         "decorators-legacy"
     ],
     "importOrderTypeScriptVersion": "5.0.0",
-    "importOrderCaseSensitive": false
+    "importOrderCaseSensitive": false,
+    "overrides": [
+        {
+            "files": [
+                "*.yml",
+                "*.yaml"
+            ],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
 }
