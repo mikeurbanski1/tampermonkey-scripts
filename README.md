@@ -11,7 +11,7 @@ All of my frontend dev experience is on hobby projects, so I have little formal 
 ```
 /
 |-- scripts -> source code for different scripts / sites
-|-- dist    -> build / bundled scripts that can be referenced directly in a TM userscript, as well as a userscript file that you can add to your Tampermonkey extension.
+|-- dist    -> built / bundled scripts that can be referenced directly in a TM userscript, as well as a userscript file that you can add to your Tampermonkey extension.
 ```
 
 These are built using typescript and bundled into a single file using esbuild. Is this overkill? Absolutely. But you haven't lived until you've developed Tampermonkey scripts in typescript with auto-reloading. I also understand that this obfuscates the built script and may cause concerns about blindly importing it into your browser. That is why I have also provided file checksums and build instructions below, to allow you to build from source yourself or just verify that the distribution file matches.
