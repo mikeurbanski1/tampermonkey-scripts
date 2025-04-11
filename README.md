@@ -2,6 +2,10 @@
 
 Welcome to my repo of (eventually) various scripts for the wonderful extension [Tampermonkey](https://www.tampermonkey.net/).
 
+## Browser support
+
+All of my frontend dev experience is on hobby projects, so I have little formal experience working with multiple browsers, developing cross-browser (and handling old browsers), etc. I test my scripts using the latest version of Chrome, and when I think of it, Firefox and Edge. I welcome contributions that add better browser support.
+
 ## Repo structure
 
 ```
