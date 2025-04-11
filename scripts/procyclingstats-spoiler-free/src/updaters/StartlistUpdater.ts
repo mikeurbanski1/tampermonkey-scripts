@@ -48,8 +48,4 @@ export class StartlistUpdater extends AbstractUpdater {
                 });
         });
     }
-
-    // public restoreSpoilers(): void {
-    //     // this.restoreDnf();
-    // }
 }
