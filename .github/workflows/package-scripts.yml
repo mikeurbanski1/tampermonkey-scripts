@@ -1,11 +1,16 @@
-name: package-scripts
+name: Build and deploy
 on:
   push:
     branches:
       - main
 jobs:
-  production-deploy:
+  install:
     runs-on: ubuntu-latest
     steps:
-      - name: Send greeting
-        run: echo "Hello actions"
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.3
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile]
