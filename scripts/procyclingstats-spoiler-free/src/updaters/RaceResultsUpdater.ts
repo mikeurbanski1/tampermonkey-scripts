@@ -89,8 +89,4 @@ export class RaceResultsUpdater extends AbstractUpdater {
     private replaceSpoilerBody(header: HTMLElement): void {
         $(header).next().text('Spoilers removed');
     }
-
-    // public restoreSpoilers(): void {
-    //     // this.restoreDnf();
-    // }
 }
