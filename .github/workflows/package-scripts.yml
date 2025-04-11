@@ -6,6 +6,9 @@ on:
 jobs:
   package:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,3 +21,8 @@ jobs:
               args: [--frozen-lockfile]
       - name: Package scripts
         run: pnpm package
+      - name: Branch and commit
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -a -m "Add changes"
